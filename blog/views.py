@@ -8,6 +8,12 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # This import is for the class based view for pagination
 from django.views.generic import ListView
 
+# This import is for handling forms in views
+from .forms import EmailPostForm
+
+# This is for the email
+from django.core.mail import send_mail
+
 
 # post_list & post_detail is about how the blog will appear and
 # seo friendly url
@@ -43,3 +49,25 @@ class PostListView(ListView):
     context_object_name = 'posts'
     paginate_by = 3
     template_name = 'blog/post/list.html'
+
+
+# Handling froms in views
+def post_share(request, post_id):
+    # Retrieve post by id
+    post = get_object_or_404(Post, id=post_id, status='published')
+    sent = False
+    if request.method == 'POST':
+        # Form was submitted
+        form = EmailPostForm(request.POST)
+        if form.is_valid():
+            # Form fields passed validation
+            cd = form.cleaned_data
+            # ... send email
+            post_url = request.build_absolute_uri(post.get_absolute_url())
+            subject = f"{cd['name']} recommends you read " f"{post.title}"
+            message = f"Read {post.title} at {post_url}\n\n" f"{cd['name']}\'s comments: {cd['comments']}"
+            send_mail(subject, message, 'kaderchowdhury.sayem@gmail.com', [cd['to']])
+            sent = True
+    else:
+        form = EmailPostForm()
+    return render(request, 'blog/post/share.html', {'post':post, 'form': form})    
