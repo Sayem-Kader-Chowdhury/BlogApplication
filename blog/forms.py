@@ -1,4 +1,7 @@
 from django import forms
+from django.db.models import fields
+
+from .models import Comment  # form for users to comment
 
 
 class EmailPostForm(forms.Form):
@@ -6,3 +9,10 @@ class EmailPostForm(forms.Form):
     email = forms.EmailField()
     to = forms.EmailField()
     comments = forms.CharField(required=False,      widget=forms.Textarea)
+
+
+# ModelForm is used because we want to use the form dynamically.
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('name', 'email', 'body')
