@@ -16,3 +16,8 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ('name', 'email', 'body')
+
+
+# This is for the full text serach feature
+class SearchForm(forms.Form):
+    query = forms.CharField()
